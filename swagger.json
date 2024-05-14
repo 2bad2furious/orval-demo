@@ -1,0 +1,112 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "SWAPI",
+    "version": "1.0.0",
+    "description": "API documentation for Star Wars API - SWAPI"
+  },
+  "paths": {
+    "/people": {
+      "get": {
+        "summary": "Get all people in all movies",
+        "operationId": "getPeople",
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "required": false
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "number"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PeopleResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/people/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "schema": {
+            "type": "string"
+          },
+          "required": true
+        }
+      ],
+      "get": {
+        "summary": "Get one person by id",
+        "operationId": "getPerson",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Person"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "PeopleResponse": {
+          "type": "object",
+          "properties": {
+            "count": {
+              "type": "number"
+            },
+            "results": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/Person"
+              }
+            }
+          },
+        "required": ["count", "results"]
+      },
+      "Person": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Luke Skywalker"
+          },
+          "birth_year": {
+            "type": "string",
+            "example": "19BBY"
+          },
+          "url": {
+            "type": "string",
+            "example": "https://swapi.dev/api/people/1/"
+          }
+        },
+        "required": ["name", "url", "birth_year"]
+      }
+    }
+  },
+  "tags": []
+}

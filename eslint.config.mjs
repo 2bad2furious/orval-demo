@@ -1,12 +1,12 @@
 // @ts-check
-import { resolve } from 'node:path';
 import { FlatCompat } from '@eslint/eslintrc';
 // @ts-expect-error - no types
 import prettierEslintConfig from 'eslint-config-prettier';
 import tseslint from 'typescript-eslint';
+import { fileURLToPath } from 'node:url';
 
 const compat = new FlatCompat({
-    baseDirectory: resolve(import.meta.dirname, './'),
+    baseDirectory: fileURLToPath(new URL('./', import.meta.url)),
 });
 
 /**
@@ -65,7 +65,7 @@ export const nextjs = compat.config({
     parser: '@typescript-eslint/parser',
     parserOptions: {
         babelOptions: {
-            presets: [resolve(import.meta.dirname, './node_modules/next/babel.js')],
+            presets: [fileURLToPath(new URL('./node_modules/next/babel.js', import.meta.url))],
         },
         ecmaVersion: 'latest',
     },

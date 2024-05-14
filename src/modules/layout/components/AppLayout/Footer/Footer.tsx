@@ -15,14 +15,6 @@ export const Footer = () => {
                         <Text component='a' td='underline' target='_blank' href='https://swapi.dev/'>
                             SWAPI
                         </Text>
-                        <Text
-                            component='a'
-                            td='underline'
-                            target='_blank'
-                            href='https://github.com/davidkpiano/openapi-test/blob/master/examples/swapi.json'
-                        >
-                            SWAPI docs
-                        </Text>
                     </Flex>
                 </Flex>
             </Container>
