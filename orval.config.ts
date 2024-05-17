@@ -6,6 +6,7 @@ export default defineConfig({
         output: {
             target: './src/modules/api/orval',
             baseUrl: 'https://swapi.dev/api',
+            prettier: true,
         },
     },
 });

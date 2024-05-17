@@ -5,9 +5,8 @@
  * API documentation for Star Wars API - SWAPI
  * OpenAPI spec version: 1.0.0
  */
-import type { AxiosRequestConfig, AxiosResponse } from 'axios';
 import axios from 'axios';
-
+import type { AxiosRequestConfig, AxiosResponse } from 'axios';
 export type GetPeopleParams = {
     search?: string;
     page?: number;
@@ -23,9 +22,6 @@ export interface PeopleResponse {
     count: number;
     results: Person[];
 }
-
-export type GetPeopleResult = AxiosResponse<PeopleResponse>;
-export type GetPersonResult = AxiosResponse<Person>;
 
 /**
  * @summary Get all people in all movies
@@ -46,3 +42,6 @@ export const getPeople = <TData = AxiosResponse<PeopleResponse>>(
 export const getPerson = <TData = AxiosResponse<Person>>(id: string, options?: AxiosRequestConfig): Promise<TData> => {
     return axios.get(`https://swapi.dev/api/people/${id}`, options);
 };
+
+export type GetPeopleResult = AxiosResponse<PeopleResponse>;
+export type GetPersonResult = AxiosResponse<Person>;

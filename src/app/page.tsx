@@ -1,40 +1,52 @@
+'use client';
 import Link from 'next/link';
-import { Container, Card, Flex, Text, Title, SimpleGrid, Stack } from '@mantine/core';
+import { Container, Card, Flex, Text, Title, SimpleGrid, Stack, Loader, Center } from '@mantine/core';
 
 import { AppLayout } from '@/modules/layout/components/AppLayout';
 import { getPeople } from '@/modules/api/orval';
 import { getPersonId } from '@/utils';
 import { SearchForm } from '@/modules/people/components/SearchForm';
 import { SEARCH_QUERY_KEY } from '@/modules/people/constants';
+import { useQuery } from '@tanstack/react-query';
+import { GeneralError } from '@/modules/ui/components/GeneralError';
+import { useSearchParams } from 'next/navigation';
 
-type SearchParams<Key extends string> = { [key in Key]: string | string[] | undefined };
-
-export default async function People({
-    searchParams: { query },
-}: {
-    searchParams: SearchParams<typeof SEARCH_QUERY_KEY>;
-}) {
-    const res = await getPeople({
-        search: typeof query === 'string' ? query : undefined,
+export default function People() {
+    const query = useSearchParams().get(SEARCH_QUERY_KEY) || undefined;
+    const {
+        data: res,
+        isPending,
+        error,
+    } = useQuery({
+        queryKey: ['people', query],
+        queryFn: () => getPeople({ search: query }),
     });
 
-    const data = res.data;
+    const data = res?.data;
 
     return (
         <AppLayout>
             <Container size='md' py='md'>
                 <Stack gap='md'>
                     <SearchForm />
-                    <SimpleGrid cols={3} spacing='md'>
-                        {data.results.map(person => (
-                            <Card key={person.url} withBorder component={Link} href={`/${getPersonId(person)}`}>
-                                <Flex justify='space-between' gap='sm'>
-                                    <Title order={3}>{person.name}</Title>
-                                    <Text>{person.birth_year}</Text>
-                                </Flex>
-                            </Card>
-                        ))}
-                    </SimpleGrid>
+                    {error && <GeneralError />}
+                    {isPending && (
+                        <Center>
+                            <Loader />
+                        </Center>
+                    )}
+                    {data && (
+                        <SimpleGrid cols={3} spacing='md'>
+                            {data.results.map(person => (
+                                <Card key={person.url} withBorder component={Link} href={`/${getPersonId(person)}`}>
+                                    <Flex justify='space-between' gap='sm'>
+                                        <Title order={3}>{person.name}</Title>
+                                        <Text>{person.birth_year}</Text>
+                                    </Flex>
+                                </Card>
+                            ))}
+                        </SimpleGrid>
+                    )}
                 </Stack>
             </Container>
         </AppLayout>
