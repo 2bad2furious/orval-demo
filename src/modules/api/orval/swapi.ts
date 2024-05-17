@@ -5,8 +5,10 @@
  * API documentation for Star Wars API - SWAPI
  * OpenAPI spec version: 1.0.0
  */
+import { useQuery } from '@tanstack/react-query';
+import type { QueryFunction, QueryKey, UseQueryOptions, UseQueryResult } from '@tanstack/react-query';
 import axios from 'axios';
-import type { AxiosRequestConfig, AxiosResponse } from 'axios';
+import type { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 export type GetPeopleParams = {
     search?: string;
     page?: number;
@@ -26,22 +28,113 @@ export interface PeopleResponse {
 /**
  * @summary Get all people in all movies
  */
-export const getPeople = <TData = AxiosResponse<PeopleResponse>>(
+export const getPeople = (
     params?: GetPeopleParams,
     options?: AxiosRequestConfig,
-): Promise<TData> => {
+): Promise<AxiosResponse<PeopleResponse>> => {
     return axios.get(`https://swapi.dev/api/people`, {
         ...options,
         params: { ...params, ...options?.params },
     });
 };
 
+export const getGetPeopleQueryKey = (params?: GetPeopleParams) => {
+    return [`https://swapi.dev/api/people`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetPeopleQueryOptions = <TData = Awaited<ReturnType<typeof getPeople>>, TError = AxiosError<unknown>>(
+    params?: GetPeopleParams,
+    options?: {
+        query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getPeople>>, TError, TData>>;
+        axios?: AxiosRequestConfig;
+    },
+) => {
+    const { query: queryOptions, axios: axiosOptions } = options ?? {};
+
+    const queryKey = queryOptions?.queryKey ?? getGetPeopleQueryKey(params);
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getPeople>>> = ({ signal }) =>
+        getPeople(params, { signal, ...axiosOptions });
+
+    return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+        Awaited<ReturnType<typeof getPeople>>,
+        TError,
+        TData
+    > & { queryKey: QueryKey };
+};
+
+export type GetPeopleQueryResult = NonNullable<Awaited<ReturnType<typeof getPeople>>>;
+export type GetPeopleQueryError = AxiosError<unknown>;
+
+/**
+ * @summary Get all people in all movies
+ */
+export const useGetPeople = <TData = Awaited<ReturnType<typeof getPeople>>, TError = AxiosError<unknown>>(
+    params?: GetPeopleParams,
+    options?: {
+        query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getPeople>>, TError, TData>>;
+        axios?: AxiosRequestConfig;
+    },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
+    const queryOptions = getGetPeopleQueryOptions(params, options);
+
+    const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+    query.queryKey = queryOptions.queryKey;
+
+    return query;
+};
+
 /**
  * @summary Get one person by id
  */
-export const getPerson = <TData = AxiosResponse<Person>>(id: string, options?: AxiosRequestConfig): Promise<TData> => {
+export const getPerson = (id: string, options?: AxiosRequestConfig): Promise<AxiosResponse<Person>> => {
     return axios.get(`https://swapi.dev/api/people/${id}`, options);
 };
 
-export type GetPeopleResult = AxiosResponse<PeopleResponse>;
-export type GetPersonResult = AxiosResponse<Person>;
+export const getGetPersonQueryKey = (id: string) => {
+    return [`https://swapi.dev/api/people/${id}`] as const;
+};
+
+export const getGetPersonQueryOptions = <TData = Awaited<ReturnType<typeof getPerson>>, TError = AxiosError<unknown>>(
+    id: string,
+    options?: {
+        query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getPerson>>, TError, TData>>;
+        axios?: AxiosRequestConfig;
+    },
+) => {
+    const { query: queryOptions, axios: axiosOptions } = options ?? {};
+
+    const queryKey = queryOptions?.queryKey ?? getGetPersonQueryKey(id);
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getPerson>>> = ({ signal }) =>
+        getPerson(id, { signal, ...axiosOptions });
+
+    return { queryKey, queryFn, enabled: !!id, ...queryOptions } as UseQueryOptions<
+        Awaited<ReturnType<typeof getPerson>>,
+        TError,
+        TData
+    > & { queryKey: QueryKey };
+};
+
+export type GetPersonQueryResult = NonNullable<Awaited<ReturnType<typeof getPerson>>>;
+export type GetPersonQueryError = AxiosError<unknown>;
+
+/**
+ * @summary Get one person by id
+ */
+export const useGetPerson = <TData = Awaited<ReturnType<typeof getPerson>>, TError = AxiosError<unknown>>(
+    id: string,
+    options?: {
+        query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getPerson>>, TError, TData>>;
+        axios?: AxiosRequestConfig;
+    },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
+    const queryOptions = getGetPersonQueryOptions(id, options);
+
+    const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+    query.queryKey = queryOptions.queryKey;
+
+    return query;
+};

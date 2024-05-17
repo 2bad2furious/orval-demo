@@ -1,20 +1,12 @@
 'use client';
 import { Container, Title, Text, Center, Loader } from '@mantine/core';
 
-import { getPerson } from '@/modules/api/orval';
+import { useGetPerson } from '@/modules/api/orval';
 import { AppLayout } from '@/modules/layout/components/AppLayout';
 import { GeneralError } from '@/modules/ui/components/GeneralError';
-import { useQuery } from '@tanstack/react-query';
 
 export default function PersonDetail({ params: { id } }: { params: { id: string } }) {
-    const {
-        data: res,
-        isPending,
-        error,
-    } = useQuery({
-        queryKey: ['person', id],
-        queryFn: () => getPerson(id),
-    });
+    const { data: res, isPending, error } = useGetPerson(id);
     const person = res?.data;
 
     return (

@@ -3,24 +3,16 @@ import Link from 'next/link';
 import { Container, Card, Flex, Text, Title, SimpleGrid, Stack, Loader, Center } from '@mantine/core';
 
 import { AppLayout } from '@/modules/layout/components/AppLayout';
-import { getPeople } from '@/modules/api/orval';
+import { useGetPeople } from '@/modules/api/orval';
 import { getPersonId } from '@/utils';
 import { SearchForm } from '@/modules/people/components/SearchForm';
 import { SEARCH_QUERY_KEY } from '@/modules/people/constants';
-import { useQuery } from '@tanstack/react-query';
 import { GeneralError } from '@/modules/ui/components/GeneralError';
 import { useSearchParams } from 'next/navigation';
 
 export default function People() {
     const query = useSearchParams().get(SEARCH_QUERY_KEY) || undefined;
-    const {
-        data: res,
-        isPending,
-        error,
-    } = useQuery({
-        queryKey: ['people', query],
-        queryFn: () => getPeople({ search: query }),
-    });
+    const { data: res, isPending, error } = useGetPeople({ search: query });
 
     const data = res?.data;
 
